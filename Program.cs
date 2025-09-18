@@ -26,7 +26,27 @@ if (!app.Environment.IsProduction())
 }
 
 app.UseCors();
-app.MapControllers(); 
+app.MapControllers();
+
+app.MapGet("/", () => "Chatbot API is running! Available endpoints: /weatherforecast, /api/chat");
+
+app.MapPost("/api/chat", async (ChatRequest request) =>
+{
+    var response = request.Message.ToLower() switch
+    {
+        "hola" => "¡Hola! ¿Cómo puedo ayudarte?",
+        "date" => $"La fecha actual es: {DateTime.Now:yyyy-MM-dd HH:mm:ss}",
+        "clima" => "Para el clima, usa /weatherforecast",
+        _ => $"Recibí tu mensaje: '{request.Message}'. ¿En qué más puedo ayudarte?"
+    };
+return new ChatResponse 
+    { 
+        Reply = response,
+        Timestamp = DateTime.Now
+    };
+});
+
+
 
 var summaries = new[]
 {
@@ -52,4 +72,10 @@ app.Run();
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+}
+public record ChatRequest(string Message);
+public record ChatResponse
+{
+    public string Reply { get; set; } = "";
+    public DateTime Timestamp { get; set; }
 }
