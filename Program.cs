@@ -17,12 +17,13 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsProduction())
 {
-    app.MapOpenApi();
+    app.UseHttpsRedirection();
 }
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 app.Urls.Add($"http://0.0.0.0:{port}");
 
 app.UseCors();
