@@ -1,5 +1,8 @@
 var builder = WebApplication.CreateBuilder(args);
 
+// Configurar puerto ANTES de build
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
@@ -16,18 +19,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-
+// Solo HTTPS redirect en desarrollo
 if (!app.Environment.IsProduction())
 {
     app.UseHttpsRedirection();
 }
 
-
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-app.Urls.Add($"http://0.0.0.0:{port}");
-
 app.UseCors();
-app.UseHttpsRedirection();
 app.MapControllers(); 
 
 var summaries = new[]
@@ -37,7 +35,7 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
